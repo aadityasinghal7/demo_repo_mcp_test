@@ -76,15 +76,31 @@ def suggest_test(file_path: str, function_name: str):
 
 
 @mcp.tool()
-def merge_if_tests_pass(pr_number: int):
-    """Merge PR only if CI tests pass"""
+def merge_if_tests_pass(pr_number: int, feature_name: str):
+    """
+    Merge PR only if:
+    1. CI tests pass
+    2. The exact test file for the feature exists
+    """
     pr = repo.get_pull(pr_number)
     statuses = repo.get_commit(pr.head.sha).get_statuses()
+
+    # Check CI statuses
+    if not statuses:
+        return {"merged": False, "reason": "No CI checks found"}
 
     for status in statuses:
         if status.state != "success":
             return {"merged": False, "reason": "CI checks not passed"}
 
+    # Check for the exact test file
+    expected_test_file = f"tests/test_{feature_name}.py"
+    pr_files = [f.filename for f in pr.get_files()]
+
+    if expected_test_file not in pr_files:
+        return {"merged": False, "reason": f"Missing test file: {expected_test_file}"}
+
+    # Merge the PR if all checks pass
     pr.merge(merge_method="squash")
     return {"merged": True, "pr_url": pr.html_url}
 
