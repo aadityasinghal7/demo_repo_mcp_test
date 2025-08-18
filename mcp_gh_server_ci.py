@@ -81,32 +81,37 @@ def suggest_test(file_path: str, function_name: str):
 def merge_if_tests_pass(pr_number: int, feature_name: str):
     """
     Merge PR only if:
-    1. All GitHub Actions checks succeed
+    1. All GitHub Actions (status checks) succeed
     2. The exact test file for the feature exists in the branch
     """
     pr = repo.get_pull(pr_number)
     commit = repo.get_commit(pr.head.sha)
 
-    # --- Check GitHub Actions (Checks API) ---
-    checks = commit.get_check_runs()
-    if checks.totalCount == 0:
-        return {"merged": False, "reason": "No GitHub Actions checks found"}
-
-    for check in checks:
-        if check.status != "completed":
-            return {"merged": False, "reason": f"Check {check.name} still in progress"}
-        if check.conclusion != "success":
-            return {"merged": False, "reason": f"Check {check.name} failed with {check.conclusion}"}
+    # --- Check GitHub Actions via Combined Status API ---
+    status = commit.get_combined_status()
+    if status.state != "success":
+        return {
+            "merged": False,
+            "reason": f"Checks not successful (state={status.state})"
+        }
 
     # --- Ensure test file exists ---
     expected_test_file = f"tests/test_{feature_name}.py"
     files = [f.filename for f in pr.get_files()]
     if expected_test_file not in files:
-        return {"merged": False, "reason": f"Missing test file: {expected_test_file}"}
+        return {
+            "merged": False,
+            "reason": f"Missing test file: {expected_test_file}"
+        }
 
-    # --- Merge ---
-    pr.merge(merge_method="squash")
-    return {"merged": True, "pr_url": pr.html_url}
+    # --- Merge PR if all conditions satisfied ---
+    pr.merge(merge_method="squash", commit_message=f"Merged {feature_name} after tests passed")
+    return {
+        "merged": True,
+        "pr_url": pr.html_url,
+        "sha": commit.sha
+    }
+
 
 
 
