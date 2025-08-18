@@ -113,6 +113,7 @@ if __name__ == "__main__":
     parser.add_argument("--file_path", help="File path for suggesting test")
     parser.add_argument("--function_name", help="Function name for test suggestion")
     parser.add_argument("--pr_number", type=int, help="PR number to merge if tests pass")
+    parser.add_argument("--feature_name", help="Feature name used to verify test file for merge")  # <--- add this
 
     args = parser.parse_args()
 
@@ -129,6 +130,8 @@ if __name__ == "__main__":
     elif args.tool == "merge_if_tests_pass":
         if not args.pr_number:
             raise ValueError("pr_number is required for merge_if_tests_pass")
-        result = merge_if_tests_pass(args.pr_number)
+        if not args.feature_name:
+            raise ValueError("feature_name is required for merge_if_tests_pass")
+        result = merge_if_tests_pass(args.pr_number, args.feature_name)
 
     print(result)
