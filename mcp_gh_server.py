@@ -75,6 +75,18 @@ def suggest_test(file_path: str, function_name: str):
     return {"test_file": test_file, "content": test_code}
 
 
+def get_all_files(tree, prefix=""):
+    """Recursively collect all file paths in a Git tree"""
+    files = []
+    for item in tree.tree:
+        path = f"{prefix}{item.path}"
+        if item.type == "blob":
+            files.append(path)
+        elif item.type == "tree":
+            files.extend(get_all_files(repo.get_git_tree(item.sha), prefix=path + "/"))
+    return files
+
+
 @mcp.tool()
 def merge_if_tests_pass(pr_number: int, feature_name: str):
     """
@@ -99,8 +111,7 @@ def merge_if_tests_pass(pr_number: int, feature_name: str):
     branch_commit = repo.get_branch(branch_ref).commit
     tree = branch_commit.commit.tree
 
-    # Collect all file paths in the branch
-    branch_files = [item.path for item in tree.tree]
+    branch_files = get_all_files(tree)
 
     if expected_test_file not in branch_files:
         return {"merged": False, "reason": f"Missing test file: {expected_test_file}"}
