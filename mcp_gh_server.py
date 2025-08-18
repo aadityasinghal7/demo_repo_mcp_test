@@ -80,7 +80,7 @@ def merge_if_tests_pass(pr_number: int, feature_name: str):
     """
     Merge PR only if:
     1. CI tests pass
-    2. The exact test file for the feature exists
+    2. The exact test file for the feature exists in the branch
     """
     pr = repo.get_pull(pr_number)
     statuses = repo.get_commit(pr.head.sha).get_statuses()
@@ -93,16 +93,22 @@ def merge_if_tests_pass(pr_number: int, feature_name: str):
         if status.state != "success":
             return {"merged": False, "reason": "CI checks not passed"}
 
-    # Check for the exact test file
+    # Check for the exact test file in the branch
     expected_test_file = f"tests/test_{feature_name}.py"
-    pr_files = [f.filename for f in pr.get_files()]
+    branch_ref = pr.head.ref
+    branch_commit = repo.get_branch(branch_ref).commit
+    tree = branch_commit.commit.tree
 
-    if expected_test_file not in pr_files:
+    # Collect all file paths in the branch
+    branch_files = [item.path for item in tree.tree]
+
+    if expected_test_file not in branch_files:
         return {"merged": False, "reason": f"Missing test file: {expected_test_file}"}
 
     # Merge the PR if all checks pass
     pr.merge(merge_method="squash")
     return {"merged": True, "pr_url": pr.html_url}
+
 
 
 # ---------------- CLI Entry Point ---------------- #
