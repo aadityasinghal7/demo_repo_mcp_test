@@ -33,6 +33,6 @@ jobs:
           fi
 
       - name: Run pytest
-        run: pytest --maxfail=1 --disable-warnings -q
+        run: echo "PYTHONPATH=$GITHUB_WORKSPACE" >> $GITHUB_ENV
         env:  
             PYTHONPATH: ./src 
