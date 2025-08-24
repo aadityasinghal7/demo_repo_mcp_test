@@ -1,0 +1,38 @@
+{
+    "missing_tests": [
+        {
+            "name": "groupweightedaverage_basic_functionality",
+            "one_line_description": "Test the groupweightedaverage function's correctness on typical valid inputs with grouping.",
+            "type": "unit",
+            "priority": "high",
+            "relevant_files": [
+                "src/data/data_processing.py",
+                "src/data/tests/test_data.py"
+            ],
+            "suggested_test_location": "src/data/tests/test_data.py"
+        },
+        {
+            "name": "weigthed_average_edge_cases",
+            "one_line_description": "Test weigthed_average handling of edge cases including zero total weight, missing columns, and NaN/Inf values.",
+            "type": "unit",
+            "priority": "medium",
+            "relevant_files": [
+                "src/data/data_processing.py",
+                "src/data/tests/test_data.py",
+                "README.md"
+            ],
+            "suggested_test_location": "src/data/tests/test_data.py"
+        },
+        {
+            "name": "groupweightedaverage_error_handling",
+            "one_line_description": "Verify groupweightedaverage raises appropriate errors on invalid inputs like missing groupby or weight columns.",
+            "type": "unit",
+            "priority": "medium",
+            "relevant_files": [
+                "src/data/data_processing.py",
+                "src/data/tests/test_data.py"
+            ],
+            "suggested_test_location": "src/data/tests/test_data.py"
+        }
+    ]
+}

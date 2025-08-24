@@ -30,6 +30,7 @@ mcp = FastMCP("github-ci-mcp")
 
 # ---------------- MCP Tools ---------------- #
 
+
 @mcp.tool()
 def create_pr(feature_branch: str, base_branch: str = "main"):
     """Create a pull request from feature branch to main"""
@@ -56,10 +57,7 @@ def suggest_test(file_path: str, function_name: str):
     Write only Python code (no explanation).
     """
 
-    resp = openai.chat.completions.create(
-        model="gpt-4.1-mini",
-        messages=[{"role": "user", "content": prompt}]
-    )
+    resp = openai.chat.completions.create(model="gpt-4.1-mini", messages=[{"role": "user", "content": prompt}])
 
     test_code = resp.choices[0].message.content
     test_file = f"tests/test_{function_name}.py"
@@ -90,29 +88,17 @@ def merge_if_tests_pass(pr_number: int, feature_name: str):
     # --- Check GitHub Actions via Combined Status API ---
     status = commit.get_combined_status()
     if status.state != "success":
-        return {
-            "merged": False,
-            "reason": f"Checks not successful (state={status.state})"
-        }
+        return {"merged": False, "reason": f"Checks not successful (state={status.state})"}
 
     # --- Ensure test file exists ---
     expected_test_file = f"tests/test_{feature_name}.py"
     files = [f.filename for f in pr.get_files()]
     if expected_test_file not in files:
-        return {
-            "merged": False,
-            "reason": f"Missing test file: {expected_test_file}"
-        }
+        return {"merged": False, "reason": f"Missing test file: {expected_test_file}"}
 
     # --- Merge PR if all conditions satisfied ---
     pr.merge(merge_method="squash", commit_message=f"Merged {feature_name} after tests passed")
-    return {
-        "merged": True,
-        "pr_url": pr.html_url,
-        "sha": commit.sha
-    }
-
-
+    return {"merged": True, "pr_url": pr.html_url, "sha": commit.sha}
 
 
 # ---------------- CLI Entry Point ---------------- #
