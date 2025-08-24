@@ -90,6 +90,7 @@ def _build_testcase_prompt(test: dict, base_dir: str = ".") -> str:
         f"- Type: {ttype}\n"
         f"- Write the test output to: {target}\n"
         f"- Use ONLY the repository context below.\n"
+        f"- Output the full test file, including imports and any necessary setup that will overwrite the target file.\n"
         f"- Output only Python test code (no prose, no fences).\n\n"
         f"Repository context for this test:\n" + "\n".join(chunks)
     )
