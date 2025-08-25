@@ -12,7 +12,7 @@ from dotenv import load_dotenv
 load_dotenv()
 GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-REPO_NAME = "aadityasinghal7/demo_repo_mcp_test"
+REPO_NAME = "aadityasinghal7/mecp-test-pipeline"
 
 gh = Github(GITHUB_TOKEN)
 repo = gh.get_repo(REPO_NAME)
