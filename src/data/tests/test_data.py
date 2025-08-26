@@ -22,18 +22,18 @@ def test_groupweightedaverage_error_handling():
     df = pd.DataFrame(
         {
             "group": ["x", "y", "x", "y"],
-            "value": [10, 20, 30, 40],
-            "weight": [1, 2, 3, 4],
+            "val": [10, 20, 30, 40],
+            "wgt": [1, 2, 3, 4],
         }
     )
-    # Case 1: missing groupby column
+    # Missing groupby column
     with pytest.raises(KeyError):
-        groupweightedaverage(df, groupby="missing_group", value="value", weights="weight")
+        groupweightedaverage(df, groupby="missing_group", value="val", weights="wgt")
 
-    # Case 2: missing value column
+    # Missing value column
     with pytest.raises(KeyError):
-        groupweightedaverage(df, groupby="group", value="missing_value", weights="weight")
+        groupweightedaverage(df, groupby="group", value="missing_value", weights="wgt")
 
-    # Case 3: missing weights column
+    # Missing weights column
     with pytest.raises(KeyError):
-        groupweightedaverage(df, groupby="group", value="value", weights="missing_weight")
+        groupweightedaverage(df, groupby="group", value="val", weights="missing_weight")
