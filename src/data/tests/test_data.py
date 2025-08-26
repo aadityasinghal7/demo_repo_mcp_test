@@ -18,22 +18,40 @@ def test_weigthed_average():
 
 
 def test_groupweightedaverage_basic_functionality():
-    df = pd.DataFrame(
+    # Create a sample DataFrame with groups and values
+    data = pd.DataFrame(
         {
-            "group": ["x", "x", "y", "y", "y"],
-            "value": [10, 20, 30, 40, 50],
-            "weight": [1, 3, 2, 1, 1],
+            "group": ["X", "X", "Y", "Y", "Y", "Z"],
+            "value": [10, 20, 30, 40, 50, 60],
+            "weight": [1, 2, 1, 1, 2, 1],
         }
     )
-    result = groupweightedaverage(df, groupby="group", value="value", weights="weight")
-    # Manually compute expected results:
-    # For group "x":
-    # weighted_sum = 10*1 + 20*3 = 10 + 60 = 70
-    # sum_weights = 1 + 3 = 4
-    # weighted_avg = 70 / 4 = 17.5
-    # For group "y":
-    # weighted_sum = 30*2 + 40*1 + 50*1 = 60 + 40 + 50 = 150
-    # sum_weights = 2 + 1 + 1 = 4
-    # weighted_avg = 150 / 4 = 37.5
-    expected = pd.Series({"x": 17.5, "y": 37.5})
-    pd.testing.assert_series_equal(result.sort_index(), expected.sort_index())
+    # Calculate weighted average manually for each group:
+    # For group X:
+    # sum_weighted_value = 10*1 + 20*2 = 10 + 40 = 50
+    # sum_weights = 1 + 2 = 3
+    # weighted avg = 50 / 3 ≈ 16.6667
+    #
+    # For group Y:
+    # sum_weighted_value = 30*1 + 40*1 + 50*2 = 30 + 40 + 100 = 170
+    # sum_weights = 1 + 1 + 2 = 4
+    # weighted avg = 170 / 4 = 42.5
+    #
+    # For group Z:
+    # sum_weighted_value = 60*1 = 60
+    # sum_weights = 1
+    # weighted avg = 60 / 1 = 60
+
+    expected = pd.Series(
+        data={
+            "X": 50 / 3,
+            "Y": 170 / 4,
+            "Z": 60,
+        }
+    )
+
+    # Run the function
+    result = groupweightedaverage(data, groupby="group", value="value", weights="weight")
+
+    # Using almost equal for float comparison
+    pd.testing.assert_series_equal(result.sort_index(), expected.sort_index(), rtol=1e-6)
