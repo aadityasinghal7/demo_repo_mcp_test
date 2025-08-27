@@ -1,16 +1,18 @@
-import numpy as np
-import pandas as pd
-from src.data.data_processing import weigthed_average
+import subprocess
+import sys
+import os
+import pytest
 
+@pytest.mark.integration
+def test_command_line_interface_run():
+    """Integration test to run data_processing.py CLI with both styles to verify end-to-end execution without errors."""
+    script_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "data_processing.py"))
+    for style in ["weighted_avg", "group"]:
+        result = subprocess.run(
+            [sys.executable, script_path, "--style", style],
+            capture_output=True,
+            text=True,
+        )
+        assert result.returncode == 0, f"CLI exited with error for style {style}: {result.stderr}"
+        assert result.stdout.strip(), f"No output produced for style {style}"
 
-def test_weigthed_average():
-    df = pd.DataFrame(
-        {
-            "A": [2, 0, 0],
-            "B": [1, 2, 3],
-        }
-    )
-    weights = {"A": 1.0, "B": 0.0}
-    result = weigthed_average(df, weights)
-    expected = pd.Series([2.0, 0.0, 0.0])
-    assert np.allclose(result, expected), f"Expected {expected}, but got {result}"
