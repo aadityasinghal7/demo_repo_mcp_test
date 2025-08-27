@@ -1,16 +1,18 @@
 import numpy as np
 import pandas as pd
-from src.data.data_processing import weigthed_average
+import pytest
+
+from src.data.data_processing import groupweightedaverage
 
 
-def test_weigthed_average():
+def test_groupweightedaverage_non_numeric_columns():
     df = pd.DataFrame(
         {
-            "A": [2, 0, 0],
-            "B": [1, 2, 3],
+            "brand": ["A", "A", "B", "B"],
+            "value": [1.0, "non-numeric", 3.0, 4.0],
+            "wt": [1.0, 2.0, "non-numeric", 1.0],
         }
     )
-    weights = {"A": 1.0, "B": 0.0}
-    result = weigthed_average(df, weights)
-    expected = pd.Series([2.0, 0.0, 0.0])
-    assert np.allclose(result, expected), f"Expected {expected}, but got {result}"
+    # Expecting an exception due to non-numeric columns being used in arithmetic
+    with pytest.raises(TypeError):
+        groupweightedaverage(df, groupby="brand", value="value", weights="wt")
