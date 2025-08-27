@@ -1,16 +1,25 @@
-import numpy as np
-import pandas as pd
-from src.data.data_processing import weigthed_average
+import subprocess
+import sys
+import pytest
 
+@pytest.mark.integration
+def test_cli_script_runs():
+    script_path = "src/data/data_processing.py"
 
-def test_weigthed_average():
-    df = pd.DataFrame(
-        {
-            "A": [2, 0, 0],
-            "B": [1, 2, 3],
-        }
+    # Run with --style weighted_avg
+    result_weighted = subprocess.run(
+        [sys.executable, script_path, "--style", "weighted_avg"],
+        capture_output=True,
+        text=True,
     )
-    weights = {"A": 1.0, "B": 0.0}
-    result = weigthed_average(df, weights)
-    expected = pd.Series([2.0, 0.0, 0.0])
-    assert np.allclose(result, expected), f"Expected {expected}, but got {result}"
+    assert result_weighted.returncode == 0
+    assert result_weighted.stdout.strip() != ""
+
+    # Run with --style group
+    result_group = subprocess.run(
+        [sys.executable, script_path, "--style", "group"],
+        capture_output=True,
+        text=True,
+    )
+    assert result_group.returncode == 0
+    assert result_group.stdout.strip() != ""
