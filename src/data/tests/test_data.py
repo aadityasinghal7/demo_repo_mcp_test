@@ -1,16 +1,24 @@
 import numpy as np
 import pandas as pd
-from src.data.data_processing import weigthed_average
+import pytest
+
+from src.data.data_processing import groupweightedaverage
 
 
-def test_weigthed_average():
+def test_groupweightedaverage_basic_functionality():
     df = pd.DataFrame(
         {
-            "A": [2, 0, 0],
-            "B": [1, 2, 3],
+            "group": ["X", "X", "Y", "Y", "Y"],
+            "value": [10, 20, 30, 40, 50],
+            "weights": [1, 2, 1, 0, 2],
         }
     )
-    weights = {"A": 1.0, "B": 0.0}
-    result = weigthed_average(df, weights)
-    expected = pd.Series([2.0, 0.0, 0.0])
-    assert np.allclose(result, expected), f"Expected {expected}, but got {result}"
+    result = groupweightedaverage(df, groupby="group", value="value", weights="weights")
+
+    expected = pd.Series(
+        {
+            "X": (10 * 1 + 20 * 2) / (1 + 2),  # (10 + 40) / 3 = 50/3 ≈ 16.6667
+            "Y": (30 * 1 + 40 * 0 + 50 * 2) / (1 + 0 + 2),  # (30 + 0 + 100)/3 = 130/3 ≈ 43.3333
+        }
+    )
+    pd.testing.assert_series_equal(result.sort_index(), expected.sort_index(), check_names=False)
