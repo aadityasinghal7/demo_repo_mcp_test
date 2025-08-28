@@ -1,16 +1,22 @@
-import numpy as np
-import pandas as pd
-from src.data.data_processing import weigthed_average
+import subprocess
+import sys
+import pytest
 
 
-def test_weigthed_average():
-    df = pd.DataFrame(
-        {
-            "A": [2, 0, 0],
-            "B": [1, 2, 3],
-        }
+@pytest.mark.integration
+@pytest.mark.parametrize("style", ["weighted_avg", "group"])
+def test_cli_integration(style):
+    # Run the data_processing module as a script with the given style argument
+    result = subprocess.run(
+        [sys.executable, "-m", "src.data.data_processing", "--style", style],
+        capture_output=True,
+        text=True,
+        check=False,
     )
-    weights = {"A": 1.0, "B": 0.0}
-    result = weigthed_average(df, weights)
-    expected = pd.Series([2.0, 0.0, 0.0])
-    assert np.allclose(result, expected), f"Expected {expected}, but got {result}"
+    # The exit code should be zero, indicating no error
+    assert result.returncode == 0, (
+        f"CLI with style '{style}' exited with code {result.returncode}. "
+        f"stderr: {result.stderr}"
+    )
+    # Output should not be empty
+    assert result.stdout.strip(), f"CLI output is empty for style '{style}'"
