@@ -1,16 +1,27 @@
 import numpy as np
 import pandas as pd
-from src.data.data_processing import weigthed_average
+import pytest
+
+from src.data.data_processing import groupweightedaverage
 
 
-def test_weigthed_average():
+def test_groupweightedaverage_zero_total_weight_per_group():
+    # Create a DataFrame where the sum of weights per group is zero
     df = pd.DataFrame(
         {
-            "A": [2, 0, 0],
-            "B": [1, 2, 3],
+            "group": ["A", "A", "B", "B"],
+            "value": [10, 20, 30, 40],
+            "weights": [0, 0, 0, 0],  # sum per group = 0
         }
     )
-    weights = {"A": 1.0, "B": 0.0}
-    result = weigthed_average(df, weights)
-    expected = pd.Series([2.0, 0.0, 0.0])
-    assert np.allclose(result, expected), f"Expected {expected}, but got {result}"
+
+    # The expected behavior is to produce inf or NaN or avoid division error
+    # Here, we check that the function does not raise an exception and returns appropriate output (NaN)
+    result = groupweightedaverage(df, groupby="group", value="value", weights="weights")
+
+    # Both groups have zero total weight, so division 0/0 => NaN
+    expected = pd.Series([np.nan, np.nan], index=pd.Index(["A", "B"], name="group"))
+
+    pd.testing.assert_series_equal(result, expected)
+
+
