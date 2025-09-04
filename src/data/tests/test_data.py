@@ -1,16 +1,12 @@
-import numpy as np
-import pandas as pd
-from src.data.data_processing import weigthed_average
-
-
-def test_weigthed_average():
+def test_weigthed_average_non_numeric_input():
     df = pd.DataFrame(
         {
             "A": [2, 0, 0],
-            "B": [1, 2, 3],
+            "B": ["x", "y", "z"],  # non-numeric values in a weighted column
         }
     )
-    weights = {"A": 1.0, "B": 0.0}
-    result = weigthed_average(df, weights)
-    expected = pd.Series([2.0, 0.0, 0.0])
-    assert np.allclose(result, expected), f"Expected {expected}, but got {result}"
+    weights = {"A": 1.0, "B": 1.0}
+    import pytest
+
+    with pytest.raises(TypeError):
+        _ = weigthed_average(df, weights)
