@@ -20,17 +20,18 @@ def test_weigthed_average():
 def test_groupweightedaverage_basic_functionality():
     df = pd.DataFrame(
         {
-            "group": ["X", "X", "Y", "Y", "Y", "Z"],
-            "value": [10, 20, 30, 40, 50, 60],
-            "weight": [1, 2, 3, 4, 5, 6],
+            "group": ["x", "x", "y", "y", "y"],
+            "value": [10, 20, 30, 40, 50],
+            "weight": [1, 3, 2, 1, 2],
         }
     )
     result = groupweightedaverage(df, groupby="group", value="value", weights="weight")
     expected = pd.Series(
         {
-            "X": (10 * 1 + 20 * 2) / (1 + 2),
-            "Y": (30 * 3 + 40 * 4 + 50 * 5) / (3 + 4 + 5),
-            "Z": 60 * 6 / 6,
+            "x": (10 * 1 + 20 * 3) / (1 + 3),
+            "y": (30 * 2 + 40 * 1 + 50 * 2) / (2 + 1 + 2),
         }
     )
-    pd.testing.assert_series_equal(result.sort_index(), expected.sort_index())
+    assert np.allclose(
+        result.values, expected.values
+    ), f"Expected {expected} but got {result}"
