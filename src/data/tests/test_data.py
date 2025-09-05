@@ -14,3 +14,27 @@ def test_weigthed_average():
     result = weigthed_average(df, weights)
     expected = pd.Series([2.0, 0.0, 0.0])
     assert np.allclose(result, expected), f"Expected {expected}, but got {result}"
+
+
+def test_groupweightedaverage_error_handling():
+    df = pd.DataFrame(
+        {
+            "group": ["a", "b", "a"],
+            "value": [1, 2, 3],
+            "weight": [0.1, 0.2, 0.3],
+        }
+    )
+
+    from src.data.data_processing import groupweightedaverage
+
+    # Missing groupby column
+    with pytest.raises(KeyError):
+        groupweightedaverage(df, groupby="missing", value="value", weights="weight")
+
+    # Missing value column
+    with pytest.raises(KeyError):
+        groupweightedaverage(df, groupby="group", value="missing", weights="weight")
+
+    # Missing weight column
+    with pytest.raises(KeyError):
+        groupweightedaverage(df, groupby="group", value="value", weights="missing")
